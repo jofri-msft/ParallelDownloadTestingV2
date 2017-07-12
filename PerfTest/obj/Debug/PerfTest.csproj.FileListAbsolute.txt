@@ -52,6 +52,6 @@ c:\users\jofriedm\documents\visual studio 2017\Projects\PerfTest\PerfTest\bin\De
 c:\users\jofriedm\documents\visual studio 2017\Projects\PerfTest\PerfTest\bin\Debug\ru\System.Spatial.resources.dll
 c:\users\jofriedm\documents\visual studio 2017\Projects\PerfTest\PerfTest\bin\Debug\zh-Hans\System.Spatial.resources.dll
 c:\users\jofriedm\documents\visual studio 2017\Projects\PerfTest\PerfTest\bin\Debug\zh-Hant\System.Spatial.resources.dll
-c:\users\jofriedm\documents\visual studio 2017\Projects\PerfTest\PerfTest\obj\Debug\PerfTest.csprojResolveAssemblyReference.cache
 c:\users\jofriedm\documents\visual studio 2017\Projects\PerfTest\PerfTest\obj\Debug\PerfTest.exe
 c:\users\jofriedm\documents\visual studio 2017\Projects\PerfTest\PerfTest\obj\Debug\PerfTest.pdb
+C:\Users\jofriedm\Documents\Visual Studio 2017\Projects\PerfTest\PerfTest\obj\Debug\PerfTest.csprojResolveAssemblyReference.cache
