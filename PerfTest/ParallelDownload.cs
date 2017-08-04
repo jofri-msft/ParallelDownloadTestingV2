@@ -7,6 +7,8 @@ using System.IO.MemoryMappedFiles;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Net;
+
 namespace Microsoft.WindowsAzure.Storage.Blob
 {
     public class ParallelDownload
@@ -28,11 +30,10 @@ namespace Microsoft.WindowsAzure.Storage.Blob
         //private FileMode fileMode;
 
         List<Stream> viewStreams;
-        List<Tuple<Task, Stream>> viewStreamTasks;
+        //List<Tuple<Task, MemoryMappedViewStream, long, long>> viewStreamTasks;
+        List<ParallelDownloadTask> parallelDownloadTasks;
 
         List<Task> downloadTaskList;
-        enum State { Running, Paused }
-        private State state = State.Running;
 
         private List<Task> continuationTasks = new List<Task>();
 
@@ -40,7 +41,8 @@ namespace Microsoft.WindowsAzure.Storage.Blob
         {
             this.ParallelDownloadSettings = parallelDownloadSettings;
             this.viewStreams = new List<Stream>();
-            this.viewStreamTasks = new List<Tuple<Task, Stream>>();
+            //this.viewStreamTasks = new List<Tuple<Task, MemoryMappedViewStream, long, long>>();
+            this.parallelDownloadTasks = new List<ParallelDownloadTask>();
             this.offset = parallelDownloadSettings.Offset;
             this.length = parallelDownloadSettings.Length;
         }
@@ -60,6 +62,8 @@ namespace Microsoft.WindowsAzure.Storage.Blob
 
         private static async Task StartAsync(ParallelDownload parallelDownload, AccessCondition accessConditions, OperationContext operationContext, BlobRequestOptions options, CancellationToken cancellationToken)
         {
+            options = new BlobRequestOptions();
+            //options.MaximumExecutionTime = TimeSpan.FromMinutes(1);
             ParallelDownloadSettings downloadSettings = parallelDownload.ParallelDownloadSettings;
             long timeStamp = Stopwatch.GetTimestamp();
             CloudBlob blob = downloadSettings.Blob;
@@ -91,26 +95,38 @@ namespace Microsoft.WindowsAzure.Storage.Blob
                         Console.WriteLine($"About to get block={i}");
                         if (parallelDownload.downloadTaskList.Count >= downloadSettings.ParallelIOCount)
                         {
+                            // The await on WhenAny does not await on the download task itself, hence exceptions must be repropagated.
+                            Console.WriteLine("Hit max I/Os, waiting for 1 to complete");
+                            Task downloadChunk = await Task.WhenAny(parallelDownload.downloadTaskList).ConfigureAwait(false);
                             try
                             {
-
-                                // The await on WhenAny does not await on the download task itself, hence exceptions must be repropagated.
-                                Console.WriteLine("Hit max I/Os, waiting for 1 to complete");
-                                Task downloadChunk = await Task.WhenAny(parallelDownload.downloadTaskList).ConfigureAwait(false);
                                 await downloadChunk;
                                 Console.WriteLine("An I/O completed");
-                                //downloadChunk
                                 parallelDownload.downloadTaskList.Remove(downloadChunk);
                                 Console.WriteLine("Removed pending I/O");
-                                //await parallelDownload.viewStreamTasks.Find(t => t.Item1.Id == downloadChunk.Id).Item2.FlushAsync().ConfigureAwait(false);
-                                //parallelDownload.viewStreamTasks.Find(t => t.Item1.Id == downloadChunk.Id).Item2.Dispose();
-                                var streamTask = parallelDownload.viewStreamTasks.Find(t => t.Item1.Id == downloadChunk.Id);
-                                parallelDownload.viewStreamTasks.Remove(streamTask);
-                                streamTask.Item2.Dispose();
+                                ParallelDownloadTask currentParallelDownloadTask = parallelDownload.parallelDownloadTasks.Find(t => t.DownloadTask.Id == downloadChunk.Id);
+                                currentParallelDownloadTask.ViewStream.Dispose();
                             }
-                            catch (StorageException)
+                            catch (Exception ex)
                             {
-                                throw;
+                                if ((ex.GetType().Equals(typeof(StorageException)) && ex.InnerException.GetType().Equals(typeof(TimeoutException))) ||
+                                    ex.GetType().Equals(typeof(IOException)) || ex.GetType().Equals(typeof(WebException)))
+                                {
+                                    Console.WriteLine("Hit timeout exception and going to retry");
+                                    ParallelDownloadTask taskToRetry = parallelDownload.parallelDownloadTasks.Find(t => t.DownloadTask.Id == downloadChunk.Id);
+                                    parallelDownload.parallelDownloadTasks.Remove(taskToRetry);
+                                    Console.WriteLine("range to retry:{0}-{1}", taskToRetry.BlobOffset, taskToRetry.RangeLength);
+                                    taskToRetry.ViewStream.Seek(0, SeekOrigin.Begin);
+                                    parallelDownload.downloadTaskList.Remove(downloadChunk);
+                                    downloadChunk = downloadSettings.Blob.DownloadRangeToStreamAsync(taskToRetry.ViewStream, taskToRetry.BlobOffset, taskToRetry.RangeLength, accessConditions, options, operationContext, cancellationToken);
+                                    parallelDownload.downloadTaskList.Add(downloadChunk);
+                                    taskToRetry = new ParallelDownloadTask(downloadChunk, taskToRetry.ViewStream, taskToRetry.BlobOffset, taskToRetry.RangeLength);
+                                    parallelDownload.parallelDownloadTasks.Add(taskToRetry);
+                                }
+                                else
+                                {
+                                    throw;
+                                }
                             }
                         }
 
@@ -132,31 +148,45 @@ namespace Microsoft.WindowsAzure.Storage.Blob
                         Task downloadTask = downloadSettings.Blob.DownloadRangeToStreamAsync(viewStream, streamBeginIndex, streamReadSize, accessConditions, options, operationContext, cancellationToken);
                         parallelDownload.downloadTaskList.Add(downloadTask);
                         Console.WriteLine($"Add block={i} task to collection, outstanding I/O={parallelDownload.downloadTaskList.Count}");
-                        parallelDownload.viewStreamTasks.Add(Tuple.Create(downloadTask, (Stream)viewStream));
+                        ParallelDownloadTask parallelDownloadTask = new ParallelDownloadTask(downloadTask, viewStream, streamBeginIndex, streamReadSize);
+                        parallelDownload.parallelDownloadTasks.Add(parallelDownloadTask);
                     }
 
                     Console.WriteLine($"for loop done; about to wait for all remaining I/Os={parallelDownload.downloadTaskList.Count}");
                     while (parallelDownload.downloadTaskList.Count > 0)
                     {
+                        // The await on WhenAny does not await on the download task itself, hence exceptions must be repropagated.
+                        Console.WriteLine($"Outside for loop waiting for remaining downloadTask count={parallelDownload.downloadTaskList.Count}");
+                        Task downloadChunk = await Task.WhenAny(parallelDownload.downloadTaskList).ConfigureAwait(false);
                         try
                         {
-
-                            // The await on WhenAny does not await on the download task itself, hence exceptions must be repropagated.
-                            Console.WriteLine($"Outside for loop waiting for remaining downloadTask count={parallelDownload.downloadTaskList.Count}");
-                            Task downloadChunk = await Task.WhenAny(parallelDownload.downloadTaskList).ConfigureAwait(false);
                             await downloadChunk;
                             Console.WriteLine("An I/O completed");
-                            //downloadChunk
                             parallelDownload.downloadTaskList.Remove(downloadChunk);
                             Console.WriteLine("Removed pending I/O");
-                            //await parallelDownload.viewStreamTasks.Find(t => t.Item1.Id == downloadChunk.Id).Item2.FlushAsync().ConfigureAwait(false);
-                            var streamTask = parallelDownload.viewStreamTasks.Find(t => t.Item1.Id == downloadChunk.Id);
-                            parallelDownload.viewStreamTasks.Remove(streamTask);
-                            streamTask.Item2.Dispose();
+                            ParallelDownloadTask currentParallelDownloadTask = parallelDownload.parallelDownloadTasks.Find(t => t.DownloadTask.Id == downloadChunk.Id);
+                            currentParallelDownloadTask.ViewStream.Dispose();
                         }
-                        catch (StorageException)
+                        catch (Exception ex)
                         {
-                            throw;
+                            if ((ex.GetType().Equals(typeof(StorageException)) && ex.InnerException.GetType().Equals(typeof(TimeoutException))))// ||
+                                //ex.GetType().Equals(typeof(IOException)) || ex.GetType().Equals(typeof(WebException)))
+                            {
+                                Console.WriteLine("Hit timeout exception and going to retry");
+                                ParallelDownloadTask taskToRetry = parallelDownload.parallelDownloadTasks.Find(t => t.DownloadTask.Id == downloadChunk.Id);
+                                parallelDownload.parallelDownloadTasks.Remove(taskToRetry);
+                                Console.WriteLine("range to retry:{0}-{1}", taskToRetry.BlobOffset, taskToRetry.RangeLength);
+                                taskToRetry.ViewStream.Seek(0, SeekOrigin.Begin);
+                                parallelDownload.downloadTaskList.Remove(downloadChunk);
+                                downloadChunk = downloadSettings.Blob.DownloadRangeToStreamAsync(taskToRetry.ViewStream, taskToRetry.BlobOffset, taskToRetry.RangeLength, accessConditions, options, operationContext, cancellationToken);
+                                parallelDownload.downloadTaskList.Add(downloadChunk);
+                                taskToRetry = new ParallelDownloadTask(downloadChunk, taskToRetry.ViewStream, taskToRetry.BlobOffset, taskToRetry.RangeLength);
+                                parallelDownload.parallelDownloadTasks.Add(taskToRetry);
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
                     }
 
