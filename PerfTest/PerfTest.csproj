@@ -65,9 +65,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ParallelDownload.cs" />
-    <Compile Include="ParallelDownloadSettings.cs" />
-    <Compile Include="ParallelDownloadTask.cs" />
+    <Compile Include="LargeBlobDownloadToFile.cs" />
+    <Compile Include="LargeBlobDownloadToFileSettings.cs" />
+    <Compile Include="LargeDownloadSubtask.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

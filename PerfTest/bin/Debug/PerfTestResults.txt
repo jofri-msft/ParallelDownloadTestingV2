@@ -1,0 +1,140 @@
+Run number 1.
+Parallel I/O Count 4.
+Download size per range 1024 in MB.
+Download has been completed in 2210.1605731 seconds.
+Run number 2.
+Parallel I/O Count 4.
+Download size per range 1024 in MB.
+Download has been completed in 2283.5977655 seconds.
+Run number 3.
+Parallel I/O Count 4.
+Download size per range 1024 in MB.
+Download has been completed in 2235.4498516 seconds.
+Run number 4.
+Parallel I/O Count 4.
+Download size per range 1024 in MB.
+Download has been completed in 2220.9971258 seconds.
+Run number 5.
+Parallel I/O Count 4.
+Download size per range 1024 in MB.
+Download has been completed in 2244.5018455 seconds.
+Run number 1.
+Parallel I/O Count 4.
+Download size per range 100 in MB.
+Download has been completed in 2393.1285463 seconds.
+Run number 2.
+Parallel I/O Count 4.
+Download size per range 100 in MB.
+Download has been completed in 2382.0467521 seconds.
+Run number 3.
+Parallel I/O Count 4.
+Download size per range 100 in MB.
+Download has been completed in 2419.3013482 seconds.
+Run number 4.
+Parallel I/O Count 4.
+Download size per range 100 in MB.
+Download has been completed in 2485.1962912 seconds.
+Run number 5.
+Parallel I/O Count 4.
+Download size per range 100 in MB.
+Download has been completed in 2396.7011333 seconds.
+Run number 1.
+Parallel I/O Count 4.
+Download size per range 16 in MB.
+Download has been completed in 3201.7612125 seconds.
+Run number 2.
+Parallel I/O Count 4.
+Download size per range 16 in MB.
+Download has been completed in 3103.2088306 seconds.
+Run number 3.
+Parallel I/O Count 4.
+Download size per range 16 in MB.
+Download has been completed in 3131.3254106 seconds.
+Run number 4.
+Parallel I/O Count 4.
+Download size per range 16 in MB.
+Download has been completed in 3027.9099572 seconds.
+Run number 5.
+Parallel I/O Count 4.
+Download size per range 16 in MB.
+Download has been completed in 3113.1677329 seconds.
+Run number 1.
+Parallel I/O Count 4.
+Download size per range 4 in MB.
+Download has been completed in 4170.9826801 seconds.
+Run number 2.
+Parallel I/O Count 4.
+Download size per range 4 in MB.
+Download has been completed in 4098.4152009 seconds.
+Run number 3.
+Parallel I/O Count 4.
+Download size per range 4 in MB.
+Download has been completed in 3940.2824635 seconds.
+Run number 4.
+Parallel I/O Count 4.
+Download size per range 4 in MB.
+Download has been completed in 4071.642913 seconds.
+Run number 5.
+Parallel I/O Count 4.
+Download size per range 4 in MB.
+Download has been completed in 3983.7668521 seconds.
+Run number 1.
+Parallel I/O Count 8.
+Download size per range 1024 in MB.
+Download has been completed in 1210.1443128 seconds.
+Run number 2.
+Parallel I/O Count 8.
+Download size per range 1024 in MB.
+Download has been completed in 1226.0011541 seconds.
+Run number 3.
+Parallel I/O Count 8.
+Download size per range 1024 in MB.
+Download has been completed in 1215.346542 seconds.
+Run number 4.
+Parallel I/O Count 8.
+Download size per range 1024 in MB.
+Download has been completed in 1248.8992818 seconds.
+Run number 5.
+Parallel I/O Count 8.
+Download size per range 1024 in MB.
+Download has been completed in 1201.9976579 seconds.
+Run number 1.
+Parallel I/O Count 8.
+Download size per range 100 in MB.
+Download has been completed in 1336.3298815 seconds.
+Run number 2.
+Parallel I/O Count 8.
+Download size per range 100 in MB.
+Download has been completed in 1327.045792 seconds.
+Run number 3.
+Parallel I/O Count 8.
+Download size per range 100 in MB.
+Download has been completed in 1340.9016897 seconds.
+Run number 4.
+Parallel I/O Count 8.
+Download size per range 100 in MB.
+Download has been completed in 1317.7476469 seconds.
+Run number 5.
+Parallel I/O Count 8.
+Download size per range 100 in MB.
+Download has been completed in 1320.0064663 seconds.
+Run number 1.
+Parallel I/O Count 8.
+Download size per range 16 in MB.
+Download has been completed in 2374.1908437 seconds.
+Run number 2.
+Parallel I/O Count 8.
+Download size per range 16 in MB.
+Download has been completed in 2421.7681495 seconds.
+Run number 3.
+Parallel I/O Count 8.
+Download size per range 16 in MB.
+Download has been completed in 2355.1565385 seconds.
+Run number 4.
+Parallel I/O Count 8.
+Download size per range 16 in MB.
+Download has been completed in 2419.2167572 seconds.
+Run number 5.
+Parallel I/O Count 8.
+Download size per range 16 in MB.
+Download has been completed in 2481.3482099 seconds.

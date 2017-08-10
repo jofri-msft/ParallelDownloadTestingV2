@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.WindowsAzure.Storage.Blob
 {
-    class ParallelDownloadTask
+    internal class LargeDownloadSubtask
     {
         public Task DownloadTask { get; set; }
 
@@ -17,7 +17,7 @@ namespace Microsoft.WindowsAzure.Storage.Blob
 
         public long RangeLength { get; protected set; }
 
-        public ParallelDownloadTask(Task downloadTask, MemoryMappedViewStream viewStream, long blobOffSet, long rangeLength)
+        public LargeDownloadSubtask(Task downloadTask, MemoryMappedViewStream viewStream, long blobOffSet, long rangeLength)
         {
             this.DownloadTask = downloadTask;
             this.ViewStream = viewStream;
