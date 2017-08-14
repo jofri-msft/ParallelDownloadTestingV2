@@ -15,7 +15,7 @@
 
 	    public static CloudBlob GetBlob() 
         {
-            string connectionString = "DefaultEndpointsProtocol=http;AccountName=[accountName];AccountKey=[accountkey]";
+            string connectionString = "DefaultEndpointsProtocol=http;AccountName=accountname;AccountKey=accountkey";
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
 
 
@@ -31,42 +31,53 @@
         {
             OperationContext.DefaultLogLevel = LogLevel.Verbose;
             CloudBlob blob = GetBlob();
-            
-            //int parallelCount = 1024;
-            //long chunkSize = 1024;
+
             ServicePointManager.DefaultConnectionLimit = 100000;
             ThreadPool.SetMinThreads(Int32.MaxValue, Int32.MaxValue);
             ThreadPool.SetMaxThreads(Int32.MaxValue, Int32.MaxValue);
 
-            int[] parallelCounts = new int[] { 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
-            int[] rangeSizes = new int[] { 1024, 100, 16, 4 };
-            for (int i = 0; i < parallelCounts.Length; i++)
-            {
-                for (int j = 0; j < rangeSizes.Length; j++)
-                {
-                    if (parallelCounts[i] > 512 && rangeSizes[j] > 100)
-                    {
-                        // max I/O for 1024 is 300 so no need to test again with
-                        continue;
-                    }
+            //int[] parallelCounts = new int[] { 4, 8, 16, 32, 64, 128, 256, 512, 1024 };
+            //int[] rangeSizes = new int[] { 1024, 100, 16, 4 };
+            //for (int i = 0; i < parallelCounts.Length; i++)
+            //{
+            //    for (int j = 0; j < rangeSizes.Length; j++)
+            //    {
+            //        if (parallelCounts[i] > 512 && rangeSizes[j] > 100)
+            //        {
+            //            // max I/O for 1024 is 300 so no need to test again with
+            //            continue;
+            //        }
 
-                    for (int k = 0; k < 5; k++)
-                    {
-                        Stopwatch time = Stopwatch.StartNew();
-                        DoDownloadFileTask(blob, parallelCounts[i] /*parallel IO count*/, rangeSizes[j] * 1024 * 1024 /* range size per IO */).GetAwaiter().GetResult();
-                        //Console.WriteLine("And, we're back in Main <-- YEAH !!!!!!!!!!!!!!!!!!!!");
-                        //DoParallelUploadTask().Wait();
-                        time.Stop();
-                        Console.WriteLine("Run number {0}.", k+1);
-                        Console.WriteLine("Parallel I/O Count {0}.", parallelCounts[i]);
-                        Console.WriteLine("Download size per range {0} in MB.", rangeSizes[j]);
-                        Console.WriteLine("Download has been completed in {0} seconds.", time.Elapsed.TotalSeconds.ToString());
-                    }
-                }
-            }
+            //        for (int k = 0; k < 5; k++)
+            //        {
+            //            Stopwatch time = Stopwatch.StartNew();
+            //            DoDownloadFileTask(blob, parallelCounts[i] /*parallel IO count*/, rangeSizes[j] * 1024 * 1024 /* range size per IO */).GetAwaiter().GetResult();
+            //            //Console.WriteLine("And, we're back in Main <-- YEAH !!!!!!!!!!!!!!!!!!!!");
+            //            //DoParallelUploadTask().Wait();
+            //            time.Stop();
+            //            Console.WriteLine("Run number {0}.", k+1);
+            //            Console.WriteLine("Parallel I/O Count {0}.", parallelCounts[i]);
+            //            Console.WriteLine("Download size per range {0} in MB.", rangeSizes[j]);
+            //            Console.WriteLine("Download has been completed in {0} seconds.", time.Elapsed.TotalSeconds.ToString());
+            //        }
+            //    }
+            //}
 
-            //Console.ReadLine();
-            //Console.ReadLine();
+            int parallelCount = 300;
+            long rangeSize = 1024;
+            Stopwatch time = Stopwatch.StartNew();
+            DoDownloadFileTask(blob, parallelCount /*parallel IO count*/, rangeSize * 1024 * 1024 /* range size per IO */).GetAwaiter().GetResult();
+            //Console.WriteLine("And, we're back in Main <-- YEAH !!!!!!!!!!!!!!!!!!!!");
+            //DoParallelUploadTask().Wait();
+            time.Stop();
+            //Console.WriteLine("Run number {0}.", k + 1);
+            Console.WriteLine("Parallel I/O Count {0}.", parallelCount);
+            Console.WriteLine("Download size per range {0} in MB.", rangeSize);
+            Console.WriteLine("Download has been completed in {0} seconds.", time.Elapsed.TotalSeconds.ToString());
+
+
+            Console.ReadLine();
+            Console.ReadLine();
         }
 
         //private static async Task DoParallelUploadTask()
