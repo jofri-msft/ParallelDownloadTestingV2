@@ -23,7 +23,7 @@ namespace Microsoft.WindowsAzure.Storage.Blob
         public readonly BlobEncryptionPolicy EncryptionPolicy;
         public readonly bool? RequireEncryption;
         public readonly LocationMode? LocationMode;
-        protected CancellationToken cancellationToken;
+        //protected CancellationToken cancellationToken;
 
         public LargeDownloadToFileSettings(CloudBlob blob, string filePath, FileMode fileMode, long? offset, long? length, int parallelIOCount = 16,
             long maxRangeSizeInBytes = 100*1024*1024, TimeSpan? maxExecutionTimePerRange = null, IRetryPolicy retryPolicy = null, BlobEncryptionPolicy encryptionPolicy = null, bool? requireEncryption = null,

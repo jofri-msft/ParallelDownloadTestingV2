@@ -67,7 +67,8 @@
   <ItemGroup>
     <Compile Include="LargeBlobDownloadToFile.cs" />
     <Compile Include="LargeBlobDownloadToFileSettings.cs" />
-    <Compile Include="LargeDownloadSubtask.cs" />
+    <Compile Include="LargeDownloadStream.cs" />
+    <Compile Include="LargeDownloadRange.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
